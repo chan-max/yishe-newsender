@@ -204,28 +204,29 @@ AI 配置位于 `config.js` 中的 `ai` 对象，可以：
 
 #### GitHub Actions 示例
 
-创建 `.github/workflows/daily-hotsearch.yml`：
+下面的工作流程会在仓库中直接运行 CLI 脚本，获取热搜并推送到飞书，不再依赖额外的 `API_URL` Secret：
 
 ```yaml
-name: Daily Hotsearch
+name: Hotsearch Every 2 Hours
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # 每天 UTC 9:00（北京时间 17:00）
+    - cron: '0 */2 * * *'  # 每两个小时运行一次（UTC 时间）
   workflow_dispatch:
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Hotsearch
-        run: |
-          curl ${{ secrets.API_URL }}/api/hotsearch/send
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v20
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm run cli
 ```
 
-在 GitHub 仓库设置中添加 Secrets：
-- `API_URL`: 你的部署地址（如 `https://newsender.onrender.com`）
-
+现在你只需将仓库部署到支持 Node.js 的环境，即可直接使用上述定时任务。
 ## API 响应示例
 
 ### GET /api/hotsearch

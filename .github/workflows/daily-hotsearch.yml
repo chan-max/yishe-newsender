@@ -1,9 +1,10 @@
-name: Daily Hotsearch
+name: Hotsearch Every 2 Hours
 
 on:
   schedule:
-    # 每天 UTC 9:00 执行（北京时间 17:00）
-    - cron: '0 9 * * *'
+    # 每两个小时执行一次（UTC 时间）
+    # 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22 点
+    - cron: '0 */2 * * *'
   # 支持手动触发
   workflow_dispatch:
 
@@ -11,16 +12,18 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Hotsearch to Feishu
-        env:
-          API_URL: ${{ secrets.API_URL }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v20
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run hotsearch script
         run: |
-          if [ -z "$API_URL" ]; then
-            echo "⚠️ API_URL secret not set. Please set it in repository settings."
-            exit 1
-          fi
-          echo "🚀 Triggering hotsearch API: $API_URL/api/hotsearch/send"
-          curl "$API_URL/api/hotsearch/send" \
-            -w "\nHTTP Status: %{http_code}\n" \
-            -f || exit 1
-          echo "✅ Hotsearch sent successfully!"
+          # the CLI entrypoint fetches hotsearch data and sends to Feishu
+          npm run cli
