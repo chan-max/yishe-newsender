@@ -40,15 +40,15 @@ async function organizeWithAI(rawMessage) {
     try {
         console.log(chalk.blue('🤖 正在使用 AI 整理热搜数据...'));
 
-        const prompt = `请对以下热搜数据进行整理和总结，要求：
-1. 保持原有的平台分类结构
-2. 对每个平台的热搜进行简要分析和总结
-3. 突出重要和有趣的热点
-4. 语言简洁明了，适合在飞书群中阅读
-5. 保持原有的时间戳和统计信息
+        const prompt = `请对以下热搜数据进行整理，要求：
+    1. 输出为纯文本，不要使用 Markdown 或任何标记语法
+    2. 保持原有的平台分类结构和顺序
+    3. 尽量保留原始消息内容，不要过度改写或总结
+    4. 仅做必要的轻微整理，减少信息冗余，便于直接阅读
+    5. 保持原有的时间戳和统计信息
 
-热搜数据：
-${rawMessage}`;
+    热搜数据：
+    ${rawMessage}`;
 
         const response = await aiClient.chat.completions.create({
             model: CONFIG.ai.modelName,
